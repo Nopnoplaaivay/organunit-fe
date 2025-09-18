@@ -1,0 +1,241 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* App-wide tiny polish */
+:root {
+  --app-max-w: 1400px;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+body {
+  background-color: #f9fafb;
+  color: #1f2937;
+}
+
+.container-app {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  max-width: var(--app-max-w);
+}
+
+@media (min-width: 640px) {
+  .container-app {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-app {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.card {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  border: 1px solid #f3f4f6;
+}
+
+.card-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+/* PrimeVue small visual tweaks */
+.p-button {
+  border-radius: 0.75rem;
+}
+
+.p-inputtext {
+  border-radius: 0.75rem;
+}
+
+.p-dialog {
+  border-radius: 1rem;
+}
+
+/* Smooth page transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Force light theme for PrimeVue components */
+.p-datatable {
+  background-color: white !important;
+  color: #1f2937 !important;
+}
+
+.p-datatable .p-datatable-header {
+  background-color: #f9fafb !important;
+  color: #1f2937 !important;
+  border-color: #e5e7eb !important;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  background-color: #f9fafb !important;
+  color: #374151 !important;
+  border-color: #e5e7eb !important;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  background-color: white !important;
+  color: #1f2937 !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:nth-child(even) {
+  background-color: #f9fafb !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #f3f4f6 !important;
+  color: #1f2937 !important;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  border-color: #e5e7eb !important;
+}
+
+/* Other PrimeVue components light theme */
+.p-dialog {
+  background-color: white !important;
+  color: #1f2937 !important;
+}
+
+.p-dialog .p-dialog-header {
+  background-color: white !important;
+  color: #1f2937 !important;
+  border-color: #e5e7eb !important;
+}
+
+.p-inputtext {
+  background-color: white !important;
+  color: #1f2937 !important;
+  border-color: #d1d5db !important;
+}
+
+.p-inputtext:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 1px #3b82f6 !important;
+}
+
+.p-inputtextarea {
+  background-color: white !important;
+  color: #1f2937 !important;
+  border-color: #d1d5db !important;
+}
+
+.p-inputtextarea:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 1px #3b82f6 !important;
+}
+
+.p-button {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: white !important;
+}
+
+.p-button:hover {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+.p-button.p-button-text {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: #3b82f6 !important;
+}
+
+.p-button.p-button-text:hover {
+  background-color: #eff6ff !important;
+  color: #2563eb !important;
+}
+
+.p-button.p-button-danger {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+
+.p-button.p-button-danger:hover {
+  background-color: #b91c1c !important;
+  border-color: #b91c1c !important;
+}
+
+.p-toast .p-toast-message {
+  background-color: white !important;
+  color: #1f2937 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Utility classes for custom styling */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-gray-600 {
+  color: #4b5563;
+}
+
+.text-blue-600 {
+  color: #2563eb;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+
+.hover\:text-blue-800:hover {
+  color: #1e40af;
+}
+
+.hover\:text-red-800:hover {
+  color: #991b1b;
+}
+
+.hover\:bg-blue-50:hover {
+  background-color: #eff6ff;
+}
+
+.hover\:bg-red-50:hover {
+  background-color: #fef2f2;
+}
+
+.flex {
+  display: flex;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}

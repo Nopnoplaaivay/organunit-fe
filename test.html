@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+  <div id="app">
+    <input v-model="newTodo" @keyup.enter="addTodo" placeholder="Thêm việc mới...">
+    <button @click="addTodo">Thêm</button>
+
+    <ul>
+      <li v-for="(todo, index) in todos" :key="index">
+        {{ todo }}
+        <button @click="removeTodo(index)">Xóa</button>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+
+    createApp({
+      data() {
+        return {
+          newTodo: '',
+          todos: ['Học Vue', 'Làm bài tập', 'Đi ngủ sớm']
+        }
+      },
+      methods: {
+        addTodo() {
+          if (this.newTodo.trim()) {
+            this.todos.push(this.newTodo)
+            this.newTodo = ''
+          }
+        },
+        removeTodo(index) {
+          this.todos.splice(index, 1)
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
