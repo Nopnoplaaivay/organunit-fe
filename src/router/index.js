@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import OrganizationUnitView from '../views/OrganizationUnitView2.vue'
+import OrganizationUnitView from '../views/OrganizationUnitView.vue'
 import OrganizationTreeView from '../views/OrganizationTreeView.vue'
 
 const router = createRouter({

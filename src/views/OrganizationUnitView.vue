@@ -3,111 +3,130 @@
     <div class="card">
       <div class="card-header">
         <h1 class="text-xl font-semibold">Đơn vị tổ chức</h1>
-        <Button @click="openCreate" icon="pi pi-plus" label="Thêm mới" />
+        <Button @click="openDialog" icon="pi pi-plus" label="Thêm mới" />
       </div>
       <div class="card-body">
-        <DataTable
-          :value="units"
-          :loading="loading"
-          :paginator="true"
-          :rows="pageSize"
-          :totalRecords="totalRecords"
-          :first="first"
-          @page="onPage"
-          @sort="onSort"
-          sortMode="single"
-          removableSort
-        >
-          <Column field="code" header="Mã" sortable style="width: 120px" />
-          <Column field="name" header="Tên" sortable style="width: 180px" />
-          <Column field="displayName" header="Tên hiển thị" sortable style="width: 200px" />
-          <Column field="description" header="Mô tả" sortable style="width: 250px">
-            <template #body="{ data }">
-              <span :title="data.description" class="truncate block">
-                {{ data.description || '-' }}
-              </span>
-            </template>
-          </Column>
-          <Column field="parentName" header="Đơn vị cha" sortable style="width: 180px">
-            <template #body="{ data }">
-              <span class="text-gray-600">
-                {{ data.parentName || 'Gốc' }}
-              </span>
-            </template>
-          </Column>
-          <Column header="Thao tác" style="width: 120px">
-            <template #body="{ data }">
-              <div class="flex gap-2">
-                <Button
-                  @click="openEdit(data)"
-                  icon="pi pi-pencil"
-                  size="small"
-                  text
-                  severity="secondary"
-                  class="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                  title="Chỉnh sửa"
-                />
-                <Button
-                  @click="confirmDelete(data)"
-                  icon="pi pi-trash"
-                  size="small"
-                  text
-                  class="text-red-600 hover:text-red-800 hover:bg-red-50"
-                  title="Xóa"
-                />
-              </div>
-            </template>
-          </Column>
-        </DataTable>
+        <div class="overflow-x-auto">
+          <DataTable
+            :value="store.units"
+            :loading="store.loading"
+            :paginator="true"
+            :rows="pageSize"
+            :totalRecords="store.totalRecords"
+            :first="first"
+            @page="onPage"
+            @sort="onSort"
+            sortMode="single"
+            removableSort
+            responsiveLayout="scroll"
+            lazy
+            :paginator-template="'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'"
+            :current-page-report-template="'Showing {first} to {last} of {totalRecords} entries'"
+            :rows-per-page-options="[10, 20, 50]"
+            class="responsive-table"
+          >
+            <Column field="code" header="Mã" sortable :class="'min-w-20'" />
+            <Column field="name" header="Tên" sortable :class="'min-w-32'" />
+            <Column field="displayName" header="Tên hiển thị" sortable :class="'min-w-40'" />
+            <Column field="description" header="Mô tả" sortable :class="'min-w-48'">
+              <template #body="{ data }">
+                <span :title="data.description" class="block truncate max-w-xs">
+                  {{ data.description || '-' }}
+                </span>
+              </template>
+            </Column>
+            <Column field="parentName" header="Đơn vị cha" sortable :class="'min-w-32'">
+              <template #body="{ data }">
+                <span class="text-gray-600">
+                  {{ data.parentName || 'Gốc' }}
+                </span>
+              </template>
+            </Column>
+            <Column header="Thao tác" :class="'min-w-24'">
+              <template #body="{ data }">
+                <div class="flex gap-2">
+                  <Button
+                    @click="openEdit(data)"
+                    icon="pi pi-pencil"
+                    size="small"
+                    text
+                    severity="secondary"
+                    class="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                    title="Chỉnh sửa"
+                  />
+                  <Button
+                    @click="confirmDelete(data)"
+                    icon="pi pi-trash"
+                    size="small"
+                    text
+                    class="text-red-600 hover:text-red-800 hover:bg-red-50"
+                    title="Xóa"
+                  />
+                </div>
+              </template>
+            </Column>
+          </DataTable>
+        </div>
       </div>
     </div>
 
+    <!-- Dialog Form -->
     <Dialog
       v-model:visible="dialogVisible"
-      :header="dialogMode === 'create' ? 'Thêm mới' : 'Chỉnh sửa'"
-      modal
-      style="width: 400px"
+      :header="dialogTitle"
+      :modal="true"
+      class="p-fluid responsive-dialog"
+      :style="{ width: '500px' }"
+      :breakpoints="{ '960px': '75vw', '641px': '90vw' }"
     >
-      <div class="space-y-4">
-        <div>
-          <label>Tên *</label>
-          <InputText v-model="form.name" :class="{ 'p-invalid': errors.name }" class="w-full" />
-          <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
-        </div>
-        <div>
-          <label>Mã *</label>
-          <InputText v-model="form.code" :class="{ 'p-invalid': errors.code }" class="w-full" />
-          <small v-if="errors.code" class="p-error">{{ errors.code }}</small>
-        </div>
-        <div>
-          <label>Tên hiển thị</label>
-          <InputText v-model="form.displayName" class="w-full" />
-        </div>
-        <div>
-          <label>Đơn vị cha</label>
-          <Dropdown
-            v-model="form.parentId"
-            :options="filteredParentOptions"
-            option-label="displayName"
-            option-value="id"
-            placeholder="Chọn đơn vị cha (để trống nếu là đơn vị gốc)"
-            show-clear
-            filter
-            filter-placeholder="Tìm kiếm đơn vị..."
-            class="w-full"
-            :empty-filter-message="'Không tìm thấy đơn vị nào'"
-            :empty-message="'Không có dữ liệu'"
+      <form @submit.prevent="submitForm" class="space-y-4">
+        <!-- Tên -->
+        <div class="field">
+          <label for="name" class="block text-sm font-medium mb-2">Tên *</label>
+          <InputText
+            id="name"
+            v-model="form.name"
+            :class="{ 'p-invalid': formErrors.name }"
+            placeholder="Nhập tên đơn vị"
           />
-          <small class="text-gray-500">Để trống nếu muốn tạo đơn vị gốc</small>
+          <small v-if="formErrors.name" class="p-error">{{ formErrors.name }}</small>
         </div>
-        <div>
-          <label>Mô tả</label>
-          <Textarea v-model="form.description" class="w-full" rows="3" />
+
+        <!-- Tên hiển thị -->
+        <div class="field">
+          <label for="displayName" class="block text-sm font-medium mb-2">Tên hiển thị *</label>
+          <InputText
+            id="displayName"
+            v-model="form.displayName"
+            :class="{ 'p-invalid': formErrors.displayName }"
+            placeholder="Nhập tên hiển thị"
+          />
+          <small v-if="formErrors.displayName" class="p-error">{{ formErrors.displayName }}</small>
         </div>
-      </div>
+
+        <!-- Đơn vị cha -->
+        <div class="field">
+          <label for="parent" class="block text-sm font-medium mb-2">Đơn vị cha</label>
+          <TreeSelect
+            v-model="form.parentId"
+            :options="treeSelectOptions"
+            placeholder="Chọn đơn vị cha"
+            selectionMode="single"
+            metaKeySelection="false"
+            class="w-full"
+          />
+        </div>
+
+        <!-- Mô tả -->
+        <div class="field">
+          <label for="description" class="block text-sm font-medium mb-2">Mô tả</label>
+          <Textarea id="description" v-model="form.description" rows="3" placeholder="Nhập mô tả" />
+        </div>
+      </form>
+
       <template #footer>
-        <Button @click="dialogVisible = false" label="Hủy" text />
-        <Button @click="submit" label="Lưu" />
+        <Button label="Hủy" icon="pi pi-times" text @click="closeDialog" />
+        <Button label="Lưu" icon="pi pi-check" @click="submitForm" :loading="store.loading" />
       </template>
     </Dialog>
 
@@ -122,146 +141,195 @@ import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import { useOrganizationUnitStore } from '@/stores/organizationUnit'
 
+// PrimeVue Components
+import Button from 'primevue/button'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import Dialog from 'primevue/dialog'
+import InputText from 'primevue/inputtext'
+import Textarea from 'primevue/textarea'
+import TreeSelect from 'primevue/treeselect'
+import Toast from 'primevue/toast'
+import ConfirmDialog from 'primevue/confirmdialog'
+
+// Composables
 const store = useOrganizationUnitStore()
 const toast = useToast()
 const confirm = useConfirm()
 
-const units = ref([])
-const parentOptions = ref([])
-const loading = ref(false)
-const totalRecords = ref(0)
-const first = ref(0)
-const pageSize = ref(10)
-const sorting = ref('')
-
 const dialogVisible = ref(false)
-const dialogMode = ref('create')
+const editingUnit = ref(null)
+const selectedUnits = ref([])
+const selectedTreeKeys = ref({})
+const pageSize = ref(10)
+const currentPage = ref(0)
+const first = ref(0)
+
 const form = reactive({
-  id: null,
   name: '',
-  code: '',
   displayName: '',
   description: '',
   parentId: null,
 })
-const errors = reactive({
+
+const formErrors = reactive({
   name: '',
-  code: '',
+  displayName: '',
 })
 
-// Computed property to filter parent options and avoid circular reference
-const filteredParentOptions = computed(() => {
-  if (dialogMode.value === 'edit' && form.id) {
-    return parentOptions.value.filter((unit) => unit.id !== form.id)
+const filters = reactive({
+  filter: '',
+  sorting: 'code',
+})
+
+// Computed
+const dialogTitle = computed(() => (editingUnit.value ? 'Thêm' : 'Sửa'))
+
+const treeNodes = computed(() => {
+  if (!store.tree || !Array.isArray(store.tree)) return []
+  return convertToTreeNodes(store.tree)
+})
+
+const treeSelectOptions = computed(() => {
+  if (!store.tree || !Array.isArray(store.tree)) return []
+  console.log('Tree Select Options:', store.tree)
+  return store.convertToTreeSelectOptions(store.tree)
+})
+
+// Methods
+function convertToTreeNodes(treeData) {
+  if (!treeData || !Array.isArray(treeData)) return []
+  return treeData.map((item) => ({
+    key: item.id,
+    label: item.displayName,
+    data: item,
+    children: item.children?.length > 0 ? convertToTreeNodes(item.children) : [],
+  }))
+}
+
+function resetForm() {
+  form.name = ''
+  form.displayName = ''
+  form.description = ''
+  form.parentId = null
+  formErrors.name = ''
+  formErrors.displayName = ''
+}
+
+function validateForm() {
+  let isValid = true
+
+  if (!form.name?.trim()) {
+    formErrors.name = 'Tên không được để trống'
+    isValid = false
+  } else {
+    formErrors.name = ''
   }
-  return parentOptions.value
-})
 
-async function loadUnits() {
+  if (!form.displayName?.trim()) {
+    formErrors.displayName = 'Tên hiển thị không được để trống'
+    isValid = false
+  } else {
+    formErrors.displayName = ''
+  }
+
+  return isValid
+}
+
+async function submitForm() {
+  if (!validateForm()) return
+
   try {
-    loading.value = true
-    const params = {
-      skipCount: first.value,
-      maxResultCount: pageSize.value,
-      sorting: sorting.value,
-    }
-    const result = await store.fetchUnits(params)
-    units.value = result.items || []
-    totalRecords.value = result.totalCount || 0
+    console.log('Raw form.parentId:', form.parentId, typeof form.parentId)
 
-    // Load all units for parent selection (without pagination)
-    await loadParentOptions()
-  } catch (err) {
+    // Handle TreeSelect value - it might return an object like {"id": true} instead of just "id"
+    let parentId = form.parentId
+    if (parentId && typeof parentId === 'object') {
+      parentId = Object.keys(parentId)[0] || null
+    }
+
+    const data = {
+      name: form.name.trim(),
+      displayName: form.displayName.trim(),
+      description: form.description?.trim() || null,
+      parentId: parentId || null,
+    }
+
+    console.log('Submitting form with data:', data)
+
+    await store.createUnit(data)
     toast.add({
-      severity: 'error',
-      summary: 'Lỗi tải dữ liệu',
-      detail: String(err?.message || err),
+      severity: 'success',
+      summary: 'Thành công',
+      detail: 'Thêm đơn vị thành công',
       life: 3000,
     })
-  } finally {
-    loading.value = false
+
+    closeDialog()
+    // Refresh data after creating new unit
+    await refreshData()
+  } catch (error) {
+    console.error('Submit error:', error)
+    toast.add({
+      severity: 'error',
+      summary: 'Lỗi',
+      detail: error.response?.data?.error?.message || 'Có lỗi xảy ra',
+      life: 5000,
+    })
   }
 }
 
-async function loadParentOptions() {
-  try {
-    const allUnitsParams = {
-      skipCount: 0,
-      maxResultCount: 1000, // Get all units for parent selection
-      sorting: 'displayName',
-    }
-    const result = await store.fetchUnits(allUnitsParams)
-    parentOptions.value = result.items || []
-  } catch (err) {
-    console.error('Error loading parent options:', err)
+function openDialog(unit = null) {
+  editingUnit.value = unit
+  if (unit) {
+    form.name = unit.name
+    form.displayName = unit.displayName
+    form.description = unit.description
+    form.parentId = unit.parentId
+  } else {
+    resetForm()
   }
+  dialogVisible.value = true
 }
 
-function onPage(e) {
-  first.value = e.first
-  pageSize.value = e.rows
-  loadUnits()
+function closeDialog() {
+  dialogVisible.value = false
+  editingUnit.value = null
+  resetForm()
 }
 
-function onSort(e) {
-  if (e.multiSortMeta?.length) {
-    const s = e.multiSortMeta[0]
-    sorting.value = `${s.field} ${s.order === 1 ? 'asc' : 'desc'}`
-  } else if (e.sortField) {
-    sorting.value = `${e.sortField} ${e.sortOrder === 1 ? 'asc' : 'desc'}`
-  }
-  loadUnits()
+function onTreeNodeSelect(node) {
+  // Optional: Filter table by selected tree node
 }
 
-function openCreate() {
-  dialogMode.value = 'create'
-  Object.assign(form, {
-    id: null,
-    name: '',
-    code: '',
-    displayName: '',
-    description: '',
-    parentId: null,
+async function onPage(event) {
+  console.log('onPage event:', event)
+
+  first.value = event.first
+  currentPage.value = event.page
+  pageSize.value = event.rows
+
+  console.log('Updated pagination state:', {
+    first: first.value,
+    currentPage: currentPage.value,
+    pageSize: pageSize.value,
   })
-  Object.assign(errors, { name: '', code: '' })
-  // Reload parent options for create mode
-  loadParentOptions()
-  dialogVisible.value = true
+
+  await loadUnits({
+    skipCount: event.first,
+    maxResultCount: event.rows,
+  })
 }
 
-function openEdit(row) {
-  dialogMode.value = 'edit'
-  Object.assign(form, row)
-  Object.assign(errors, { name: '', code: '' })
-  dialogVisible.value = true
+async function onSort(event) {
+  filters.sorting = event.sortField + (event.sortOrder === -1 ? ' desc' : '')
+  await loadUnits()
 }
 
 function validate() {
   errors.name = form.name ? '' : 'Tên bắt buộc'
   errors.code = form.code ? '' : 'Mã bắt buộc'
   return !errors.name && !errors.code
-}
-
-async function submit() {
-  if (!validate()) return
-  try {
-    if (dialogMode.value === 'create') {
-      await store.createUnit?.(form)
-      toast.add({ severity: 'success', summary: 'Tạo thành công', life: 2000 })
-    } else {
-      await store.updateUnit?.(form.id, form)
-      toast.add({ severity: 'success', summary: 'Đã lưu thay đổi', life: 2000 })
-    }
-    dialogVisible.value = false
-    loadUnits()
-  } catch (err) {
-    toast.add({
-      severity: 'error',
-      summary: 'Lỗi',
-      detail: String(err?.message || err),
-      life: 3000,
-    })
-  }
 }
 
 function confirmDelete(row) {
@@ -274,7 +342,8 @@ function confirmDelete(row) {
       try {
         await store.deleteUnit?.(row.id)
         toast.add({ severity: 'success', summary: 'Đã xóa', life: 2000 })
-        loadUnits()
+        // Reload current page after delete
+        await loadUnits()
       } catch (e) {
         toast.add({
           severity: 'error',
@@ -287,16 +356,71 @@ function confirmDelete(row) {
   })
 }
 
+async function searchUnits() {
+  await loadUnits()
+}
+
+async function loadUnits(params = {}) {
+  try {
+    const requestParams = {
+      skipCount: params.skipCount ?? first.value,
+      maxResultCount: params.maxResultCount ?? pageSize.value,
+      sorting: filters.sorting,
+      ...params,
+    }
+
+    console.log('Loading units with params:', requestParams)
+
+    const result = await store.fetchUnits(requestParams)
+
+    console.log('Load units result:', {
+      items: result?.items?.length,
+      totalCount: result?.totalCount,
+      storeUnits: store.units?.length,
+      storeTotalRecords: store.totalRecords,
+    })
+
+    return result
+  } catch (error) {
+    console.error('Error loading units:', error)
+    throw error
+  }
+}
+
+async function refreshData() {
+  // Reset pagination when refreshing
+  first.value = 0
+  currentPage.value = 0
+
+  console.log('Refreshing data with reset pagination')
+
+  await Promise.all([loadUnits(), store.fetchTree()])
+
+  console.log('Data refreshed. Store state:', {
+    unitsLength: store.units?.length,
+    totalRecords: store.totalRecords,
+    first: first.value,
+    pageSize: pageSize.value,
+  })
+}
+
+async function refreshTree() {
+  await store.fetchTree()
+}
+
+// Lifecycle
+onMounted(async () => {
+  await refreshData()
+})
+
 watch(
   () => form.name,
-  (v) => {
-    if (dialogMode.value === 'create' && !form.displayName) {
-      form.displayName = v
+  (newValue) => {
+    if (!form.displayName && newValue) {
+      form.displayName = newValue
     }
   },
 )
-
-onMounted(() => loadUnits())
 </script>
 
 <style scoped>
@@ -322,5 +446,103 @@ onMounted(() => loadUnits())
 :deep(.p-datatable .p-datatable-thead > tr > th) {
   background-color: #f9fafb !important;
   color: #374151 !important;
+}
+
+/* Responsive DataTable Improvements */
+.responsive-table {
+  min-width: 800px; /* Ensure minimum width for readability */
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .responsive-table {
+    font-size: 0.875rem;
+    min-width: 700px;
+  }
+
+  /* Hide less important columns on smaller screens */
+  :deep(.p-datatable .p-datatable-thead > tr > th:nth-child(3)),
+  :deep(.p-datatable .p-datatable-tbody > tr > td:nth-child(3)) {
+    display: none;
+  }
+
+  /* Adjust padding for mobile */
+  :deep(.p-datatable .p-datatable-tbody > tr > td) {
+    padding: 0.5rem 0.75rem;
+  }
+
+  :deep(.p-datatable .p-datatable-thead > tr > th) {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .responsive-table {
+    min-width: 600px;
+    font-size: 0.8rem;
+  }
+
+  /* Hide description column on very small screens */
+  :deep(.p-datatable .p-datatable-thead > tr > th:nth-child(4)),
+  :deep(.p-datatable .p-datatable-tbody > tr > td:nth-child(4)) {
+    display: none;
+  }
+
+  /* Make action buttons smaller */
+  :deep(.p-button-small) {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Improve horizontal scroll appearance */
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Responsive Dialog */
+.responsive-dialog {
+  margin: 1rem;
+}
+
+@media (max-width: 640px) {
+  .responsive-dialog {
+    margin: 0.5rem;
+  }
+
+  :deep(.p-dialog .p-dialog-content) {
+    padding: 1rem;
+  }
+
+  :deep(.p-dialog .p-dialog-header) {
+    padding: 1rem;
+  }
+
+  :deep(.p-dialog .p-dialog-footer) {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  :deep(.p-dialog .p-dialog-footer .p-button) {
+    flex: 1;
+  }
 }
 </style>
