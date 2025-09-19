@@ -25,7 +25,6 @@
                 <template #default="{ node }">
                   <div class="flex items-center justify-between w-full">
                     <div class="flex items-center gap-2">
-                      <i :class="node.icon" class="text-blue-500"></i>
                       <span class="font-medium">{{ node.label }}</span>
                       <span v-if="node.data?.code" class="text-sm text-gray-500"
                         >({{ node.data.code }})</span

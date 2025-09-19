@@ -6,59 +6,63 @@
         <Button @click="openDialog" icon="pi pi-plus" label="Thêm mới" />
       </div>
       <div class="card-body">
-        <DataTable
-          :value="store.units"
-          :loading="store.loading"
-          :paginator="true"
-          :rows="pageSize"
-          :totalRecords="store.totalRecords"
-          :first="first"
-          @page="onPage"
-          @sort="onSort"
-          sortMode="single"
-          removableSort
-        >
-          <Column field="code" header="Mã" sortable style="width: 120px" />
-          <Column field="name" header="Tên" sortable style="width: 180px" />
-          <Column field="displayName" header="Tên hiển thị" sortable style="width: 200px" />
-          <Column field="description" header="Mô tả" sortable style="width: 250px">
-            <template #body="{ data }">
-              <span :title="data.description" class="truncate block">
-                {{ data.description || '-' }}
-              </span>
-            </template>
-          </Column>
-          <Column field="parentName" header="Đơn vị cha" sortable style="width: 180px">
-            <template #body="{ data }">
-              <span class="text-gray-600">
-                {{ data.parentName || 'Gốc' }}
-              </span>
-            </template>
-          </Column>
-          <Column header="Thao tác" style="width: 120px">
-            <template #body="{ data }">
-              <div class="flex gap-2">
-                <Button
-                  @click="openEdit(data)"
-                  icon="pi pi-pencil"
-                  size="small"
-                  text
-                  severity="secondary"
-                  class="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                  title="Chỉnh sửa"
-                />
-                <Button
-                  @click="confirmDelete(data)"
-                  icon="pi pi-trash"
-                  size="small"
-                  text
-                  class="text-red-600 hover:text-red-800 hover:bg-red-50"
-                  title="Xóa"
-                />
-              </div>
-            </template>
-          </Column>
-        </DataTable>
+        <div class="overflow-x-auto">
+          <DataTable
+            :value="store.units"
+            :loading="store.loading"
+            :paginator="true"
+            :rows="pageSize"
+            :totalRecords="store.totalRecords"
+            :first="first"
+            @page="onPage"
+            @sort="onSort"
+            sortMode="single"
+            removableSort
+            responsiveLayout="scroll"
+            class="responsive-table"
+          >
+            <Column field="code" header="Mã" sortable :class="'min-w-20'" />
+            <Column field="name" header="Tên" sortable :class="'min-w-32'" />
+            <Column field="displayName" header="Tên hiển thị" sortable :class="'min-w-40'" />
+            <Column field="description" header="Mô tả" sortable :class="'min-w-48'">
+              <template #body="{ data }">
+                <span :title="data.description" class="block truncate max-w-xs">
+                  {{ data.description || '-' }}
+                </span>
+              </template>
+            </Column>
+            <Column field="parentName" header="Đơn vị cha" sortable :class="'min-w-32'">
+              <template #body="{ data }">
+                <span class="text-gray-600">
+                  {{ data.parentName || 'Gốc' }}
+                </span>
+              </template>
+            </Column>
+            <Column header="Thao tác" :class="'min-w-24'">
+              <template #body="{ data }">
+                <div class="flex gap-2">
+                  <Button
+                    @click="openEdit(data)"
+                    icon="pi pi-pencil"
+                    size="small"
+                    text
+                    severity="secondary"
+                    class="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                    title="Chỉnh sửa"
+                  />
+                  <Button
+                    @click="confirmDelete(data)"
+                    icon="pi pi-trash"
+                    size="small"
+                    text
+                    class="text-red-600 hover:text-red-800 hover:bg-red-50"
+                    title="Xóa"
+                  />
+                </div>
+              </template>
+            </Column>
+          </DataTable>
+        </div>
       </div>
     </div>
 
@@ -67,8 +71,9 @@
       v-model:visible="dialogVisible"
       :header="dialogTitle"
       :modal="true"
-      class="p-fluid"
+      class="p-fluid responsive-dialog"
       :style="{ width: '500px' }"
+      :breakpoints="{ '960px': '75vw', '641px': '90vw' }"
     >
       <form @submit.prevent="submitForm" class="space-y-4">
         <!-- Tên -->
@@ -393,5 +398,103 @@ watch(
 :deep(.p-datatable .p-datatable-thead > tr > th) {
   background-color: #f9fafb !important;
   color: #374151 !important;
+}
+
+/* Responsive DataTable Improvements */
+.responsive-table {
+  min-width: 800px; /* Ensure minimum width for readability */
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .responsive-table {
+    font-size: 0.875rem;
+    min-width: 700px;
+  }
+
+  /* Hide less important columns on smaller screens */
+  :deep(.p-datatable .p-datatable-thead > tr > th:nth-child(3)),
+  :deep(.p-datatable .p-datatable-tbody > tr > td:nth-child(3)) {
+    display: none;
+  }
+
+  /* Adjust padding for mobile */
+  :deep(.p-datatable .p-datatable-tbody > tr > td) {
+    padding: 0.5rem 0.75rem;
+  }
+
+  :deep(.p-datatable .p-datatable-thead > tr > th) {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .responsive-table {
+    min-width: 600px;
+    font-size: 0.8rem;
+  }
+
+  /* Hide description column on very small screens */
+  :deep(.p-datatable .p-datatable-thead > tr > th:nth-child(4)),
+  :deep(.p-datatable .p-datatable-tbody > tr > td:nth-child(4)) {
+    display: none;
+  }
+
+  /* Make action buttons smaller */
+  :deep(.p-button-small) {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Improve horizontal scroll appearance */
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Responsive Dialog */
+.responsive-dialog {
+  margin: 1rem;
+}
+
+@media (max-width: 640px) {
+  .responsive-dialog {
+    margin: 0.5rem;
+  }
+
+  :deep(.p-dialog .p-dialog-content) {
+    padding: 1rem;
+  }
+
+  :deep(.p-dialog .p-dialog-header) {
+    padding: 1rem;
+  }
+
+  :deep(.p-dialog .p-dialog-footer) {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  :deep(.p-dialog .p-dialog-footer .p-button) {
+    flex: 1;
+  }
 }
 </style>
